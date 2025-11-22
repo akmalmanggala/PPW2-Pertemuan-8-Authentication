@@ -7,6 +7,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JobUserController;
+use App\Http\Controllers\ApplicationController;
+use App\Models\Application;
+use Illuminate\Support\Facades\App;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +32,8 @@ Route::middleware(['auth', 'isUser'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/jobs', [JobUserController::class, 'index'])->name('user.jobs');
     Route::get('/jobs/{id}', [JobUserController::class, 'show'])->name('user.jobs.show');
+    Route::get('/jobs/{id}/apply', [ApplicationController::class, 'create'])->name('user.jobs.apply.form');
+    Route::post('/jobs/{id}/apply', [ApplicationController::class, 'store'])->name('user.jobs.apply');
 });
 
 Route::middleware(['auth', 'isAdmin'])->group(function () {
@@ -43,6 +48,13 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
         'update' => 'admin.jobs.update',
         'destroy' => 'admin.jobs.destroy',
     ]);
+    Route::get('/admin/applications', [ApplicationController::class, 'index'])->name('admin.applications');
+    Route::put('/admin/applications/{id}', [ApplicationController::class, 'update'])
+        ->name('applications.update-status');
+    Route::get('/applications/export', [ApplicationController::class, 'export'])
+        ->name('applications.export');
+    Route::post('/jobs/import', [JobController::class, 'import'])
+        ->name('jobs.import');
 });
 
 Route::middleware('auth')->group(function () {

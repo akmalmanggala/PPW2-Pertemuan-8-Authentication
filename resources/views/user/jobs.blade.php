@@ -365,12 +365,12 @@
                                                 </svg>
                                             </a>
                                             @if($job->is_active)
-                                                <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:shadow-md transition">
+                                                <a href="{{ route('user.jobs.apply', $job->id) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:shadow-md transition">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                                     </svg>
                                                     Lamar
-                                                </button>
+                                                </a>
                                             @endif
                                         </div>
                                     </div>

@@ -36,6 +36,7 @@ class ProfileController extends Controller
             $user->password = Hash::make($validated['password']);
         }
 
+        /** @var \App\Models\User $user */
         $user->save();
 
         return back()->with('success', 'Profile berhasil diperbarui!');

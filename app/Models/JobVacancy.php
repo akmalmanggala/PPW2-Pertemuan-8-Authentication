@@ -18,4 +18,9 @@ class JobVacancy extends Model
         'job_type',
         'is_active',
     ];
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'job_vacancy_id');
+    }
 }
