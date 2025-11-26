@@ -1,0 +1,1591 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Job Portal API",
+        "description": "API untuk aplikasi Job Portal - Pertemuan 6 PPW2",
+        "contact": {
+            "name": "Akmal Manggala Putra",
+            "email": "akmalmanggala2810@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local Development Server"
+        }
+    ],
+    "paths": {
+        "/api/applications": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get list of applications (Admin only)",
+                "description": "Mendapatkan daftar semua aplikasi lamaran",
+                "operationId": "895749895f8d7900e2b7a93830d1f67f",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "accepted",
+                                "rejected"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "query",
+                        "description": "Filter by job ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Apply for a job",
+                "description": "Melamar pekerjaan dengan upload CV",
+                "operationId": "efab8f5a260c12ca422023d85c43d889",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "job_id",
+                                    "cv"
+                                ],
+                                "properties": {
+                                    "job_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cv": {
+                                        "description": "PDF file only",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Application submitted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Application submitted successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "job_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "cv": {
+                                                    "type": "string",
+                                                    "example": "cvs/cv_123456.pdf"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Already applied or validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Job not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/{id}/status": {
+            "patch": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Update application status (Admin only)",
+                "description": "Mengupdate status aplikasi lamaran (accepted/rejected)",
+                "operationId": "ec30318084d4201cbbc31b04511465e5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Application ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "accepted",
+                                            "rejected"
+                                        ],
+                                        "example": "accepted"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only"
+                    },
+                    "404": {
+                        "description": "Application not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register user baru",
+                "description": "Mendaftarkan user baru dan mengembalikan token autentikasi",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "admin"
+                                        ],
+                                        "example": "user"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User berhasil didaftarkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|abcdefghijklmnopqrstuvwxyz"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user",
+                "description": "Login user dan mengembalikan token autentikasi",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "2|abcdefghijklmnopqrstuvwxyz"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "description": "Logout user dan menghapus token autentikasi",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/user": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get user dashboard data",
+                "description": "Mendapatkan data dashboard untuk user (latest jobs)",
+                "operationId": "7ffd7f51129622474687ad8f874dc196",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "latest_jobs": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Software Engineer"
+                                                    },
+                                                    "company": {
+                                                        "type": "string",
+                                                        "example": "Tech Corp"
+                                                    },
+                                                    "location": {
+                                                        "type": "string",
+                                                        "example": "Jakarta"
+                                                    },
+                                                    "salary": {
+                                                        "type": "string",
+                                                        "example": "10000000-15000000"
+                                                    },
+                                                    "job_type": {
+                                                        "type": "string",
+                                                        "example": "Full Time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/admin": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get admin dashboard statistics (Admin only)",
+                "description": "Mendapatkan statistik dashboard untuk admin",
+                "operationId": "a5f2aff883a246008b38698f93b40800",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statistics": {
+                                            "properties": {
+                                                "total_jobs": {
+                                                    "type": "integer",
+                                                    "example": 50
+                                                },
+                                                "active_jobs": {
+                                                    "type": "integer",
+                                                    "example": 35
+                                                },
+                                                "total_users": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                },
+                                                "total_applications": {
+                                                    "type": "integer",
+                                                    "example": 150
+                                                },
+                                                "pending_applications": {
+                                                    "type": "integer",
+                                                    "example": 20
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "latest_jobs": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Software Engineer"
+                                                    },
+                                                    "company": {
+                                                        "type": "string",
+                                                        "example": "Tech Corp"
+                                                    },
+                                                    "applications_count": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/jobs": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get list of job vacancies",
+                "description": "Mendapatkan daftar lowongan pekerjaan dengan fitur search dan pagination",
+                "operationId": "7ddb43f87de5ddc0eb46ffea0b1ce86c",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by title or company",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Filter by location",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "company",
+                        "in": "query",
+                        "description": "Filter by company",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Software Engineer"
+                                                    },
+                                                    "company": {
+                                                        "type": "string",
+                                                        "example": "Tech Corp"
+                                                    },
+                                                    "location": {
+                                                        "type": "string",
+                                                        "example": "Jakarta"
+                                                    },
+                                                    "salary": {
+                                                        "type": "string",
+                                                        "example": "10000000-15000000"
+                                                    },
+                                                    "job_type": {
+                                                        "type": "string",
+                                                        "example": "Full Time"
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Create new job vacancy (Admin only)",
+                "description": "Membuat lowongan pekerjaan baru",
+                "operationId": "46db842b9a0994748f28e0cc492a5b45",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "location",
+                                    "company",
+                                    "job_type"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Software Engineer"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Job description..."
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "example": "Jakarta"
+                                    },
+                                    "company": {
+                                        "type": "string",
+                                        "example": "Tech Corp"
+                                    },
+                                    "salary": {
+                                        "type": "string",
+                                        "example": "10000000-15000000"
+                                    },
+                                    "job_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Full Time",
+                                            "Part Time",
+                                            "Contract",
+                                            "Freelance"
+                                        ]
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Job created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/jobs/{id}": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get job vacancy detail",
+                "description": "Mendapatkan detail lowongan pekerjaan berdasarkan ID",
+                "operationId": "5110aac1a46a8914ca1696c2208d8e76",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Job ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Software Engineer"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Job description..."
+                                        },
+                                        "company": {
+                                            "type": "string",
+                                            "example": "Tech Corp"
+                                        },
+                                        "location": {
+                                            "type": "string",
+                                            "example": "Jakarta"
+                                        },
+                                        "salary": {
+                                            "type": "string",
+                                            "example": "10000000-15000000"
+                                        },
+                                        "job_type": {
+                                            "type": "string",
+                                            "example": "Full Time"
+                                        },
+                                        "is_active": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Job not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Update job vacancy (Admin only)",
+                "description": "Mengupdate lowongan pekerjaan",
+                "operationId": "09003eadd3b848807fdd9deb993a68ee",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Job ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Software Engineer"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated description..."
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "example": "Jakarta"
+                                    },
+                                    "company": {
+                                        "type": "string",
+                                        "example": "Tech Corp"
+                                    },
+                                    "salary": {
+                                        "type": "string",
+                                        "example": "10000000-15000000"
+                                    },
+                                    "job_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Full Time",
+                                            "Part Time",
+                                            "Contract",
+                                            "Freelance"
+                                        ]
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Job updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only"
+                    },
+                    "404": {
+                        "description": "Job not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Delete job vacancy (Admin only)",
+                "description": "Menghapus lowongan pekerjaan",
+                "operationId": "10aafac8e299b54e3bdd7bf7d651b26b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Job ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Job deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only"
+                    },
+                    "404": {
+                        "description": "Job not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/jobs": {
+            "get": {
+                "tags": [
+                    "Jobs User"
+                ],
+                "summary": "Get list of jobs for user with advanced search",
+                "description": "Mendapatkan daftar lowongan pekerjaan aktif dengan fitur search, filter, dan sorting",
+                "operationId": "b42a624b72299fced74ed2d08b112b1e",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by title, company, or description",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Filter by location",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "job_type",
+                        "in": "query",
+                        "description": "Filter by job type (can be multiple)",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Full Time",
+                                    "Part Time",
+                                    "Contract",
+                                    "Freelance"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort results",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "latest",
+                            "enum": [
+                                "latest",
+                                "oldest",
+                                "salary_high",
+                                "salary_low"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Software Engineer"
+                                                    },
+                                                    "company": {
+                                                        "type": "string",
+                                                        "example": "Tech Corp"
+                                                    },
+                                                    "location": {
+                                                        "type": "string",
+                                                        "example": "Jakarta"
+                                                    },
+                                                    "salary": {
+                                                        "type": "string",
+                                                        "example": "10000000-15000000"
+                                                    },
+                                                    "job_type": {
+                                                        "type": "string",
+                                                        "example": "Full Time"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Job description..."
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/jobs/{id}": {
+            "get": {
+                "tags": [
+                    "Jobs User"
+                ],
+                "summary": "Get job detail for user",
+                "description": "Mendapatkan detail lowongan pekerjaan berdasarkan ID",
+                "operationId": "d7a5e56e091a9b1cede56a2ef5624e37",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Job ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Software Engineer"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Job description..."
+                                        },
+                                        "company": {
+                                            "type": "string",
+                                            "example": "Tech Corp"
+                                        },
+                                        "location": {
+                                            "type": "string",
+                                            "example": "Jakarta"
+                                        },
+                                        "salary": {
+                                            "type": "string",
+                                            "example": "10000000-15000000"
+                                        },
+                                        "job_type": {
+                                            "type": "string",
+                                            "example": "Full Time"
+                                        },
+                                        "logo": {
+                                            "type": "string",
+                                            "example": "logos/company-logo.png"
+                                        },
+                                        "is_active": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Job not found"
+                    }
+                }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get user profile",
+                "description": "Mendapatkan data profile user yang sedang login",
+                "operationId": "526a42c275fd243376d4b533d9099ca8",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "john@example.com"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "user"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "applications_count": {
+                                            "type": "integer",
+                                            "example": 5
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update user profile",
+                "description": "Mengupdate data profile user (name, email, password)",
+                "operationId": "e993679e53b3ece28f7d010f3fbd77d2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "current_password": {
+                                        "description": "Required if changing password",
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newpassword123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newpassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated successfully"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated or incorrect current password"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/public/jobs": {
+            "get": {
+                "tags": [
+                    "Public Jobs"
+                ],
+                "summary": "Get public job listings (No authentication required)",
+                "description": "Mendapatkan daftar lowongan pekerjaan publik tanpa memerlukan token autentikasi. Endpoint read-only untuk akses publik.",
+                "operationId": "9e527edeaad8ee56050c51edbef6f348",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by title, company, or description",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Filter by location",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "company",
+                        "in": "query",
+                        "description": "Filter by company name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "job_type",
+                        "in": "query",
+                        "description": "Filter by job type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Full Time",
+                                "Part Time",
+                                "Contract",
+                                "Freelance"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "example": 2
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "example": 5
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Software Engineer"
+                                                    },
+                                                    "company": {
+                                                        "type": "string",
+                                                        "example": "Tech Corp"
+                                                    },
+                                                    "location": {
+                                                        "type": "string",
+                                                        "example": "Jakarta"
+                                                    },
+                                                    "salary": {
+                                                        "type": "string",
+                                                        "example": "10000000-15000000"
+                                                    },
+                                                    "job_type": {
+                                                        "type": "string",
+                                                        "example": "Full Time"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Job description..."
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 10
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/public/jobs/{id}": {
+            "get": {
+                "tags": [
+                    "Public Jobs"
+                ],
+                "summary": "Get public job detail (No authentication required)",
+                "description": "Mendapatkan detail lowongan pekerjaan tanpa memerlukan token autentikasi",
+                "operationId": "5db67ef8871de8831dc6da69a069391b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Job ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Software Engineer"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Job description..."
+                                        },
+                                        "company": {
+                                            "type": "string",
+                                            "example": "Tech Corp"
+                                        },
+                                        "location": {
+                                            "type": "string",
+                                            "example": "Jakarta"
+                                        },
+                                        "salary": {
+                                            "type": "string",
+                                            "example": "10000000-15000000"
+                                        },
+                                        "job_type": {
+                                            "type": "string",
+                                            "example": "Full Time"
+                                        },
+                                        "logo": {
+                                            "type": "string",
+                                            "example": "logos/company-logo.png"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Job not found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Enter your bearer token in the format: Bearer {token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Applications",
+            "description": "API Endpoints untuk job applications"
+        },
+        {
+            "name": "Authentication",
+            "description": "API Endpoints untuk autentikasi user"
+        },
+        {
+            "name": "Dashboard",
+            "description": "API Endpoints untuk dashboard statistics"
+        },
+        {
+            "name": "Jobs",
+            "description": "API Endpoints untuk job vacancies"
+        },
+        {
+            "name": "Jobs User",
+            "description": "API Endpoints untuk user melihat dan search job vacancies"
+        },
+        {
+            "name": "Profile",
+            "description": "API Endpoints untuk user profile management"
+        },
+        {
+            "name": "Public Jobs",
+            "description": "API Endpoints untuk public jobs (tanpa autentikasi)"
+        }
+    ]
+}

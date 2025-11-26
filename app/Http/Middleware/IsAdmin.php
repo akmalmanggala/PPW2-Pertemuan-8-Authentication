@@ -20,6 +20,15 @@ class IsAdmin
         if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
+
+        // Cek apakah request dari API
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'message' => 'Forbidden. Admin access required.'
+            ], 403);
+        }
+
+        // Jika dari web, redirect ke login
         return redirect('/login')->withErrors(['access' => 'Anda tidak memiliki akses ke halaman admin.']);
     }
 }
