@@ -1,0 +1,68 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Vendor (akan di-install ulang via composer)
+vendor/
+
+# Laravel specific
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+
+# Storage & Cache
+storage/*.key
+storage/app/*
+!storage/app/.gitignore
+!storage/app/public
+storage/framework/cache/*
+!storage/framework/cache/.gitignore
+storage/framework/sessions/*
+!storage/framework/sessions/.gitignore
+storage/framework/views/*
+!storage/framework/views/.gitignore
+storage/logs/*
+!storage/logs/.gitignore
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Public storage (symlink - akan dibuat ulang)
+public/storage
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Laporan Praktikum
+/laprak/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Testing
+tests/
+phpunit.xml
+.phpunit.result.cache

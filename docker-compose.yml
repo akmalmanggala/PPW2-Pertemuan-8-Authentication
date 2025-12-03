@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  # 1. Service Aplikasi (Laravel)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    restart: always
+    volumes:
+      - .:/var/www  # Menghubungkan folder kodingan di laptop ke container
+    depends_on:
+      - db
+
+  # 2. Service Web Server (Nginx)
+  webserver:
+    image: nginx:alpine
+    container_name: nginx-server
+    restart: always
+    ports:
+      - "8000:80"   # Akses dari browser nanti pakai port 8000
+    volumes:
+      - .:/var/www
+      - ./nginx/conf.d:/etc/nginx/conf.d # Kita akan buat config ini di langkah berikutnya
+    depends_on:
+      - app
+
+  # 3. Service Database (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: jobportal
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306" # Akses database dari luar pakai port 3307
